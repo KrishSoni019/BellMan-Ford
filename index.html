@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bellman-Ford Algorithm Visualizer</title>
+   <link rel="stylesheet" href="styles.css">
+   
+</head>
+<body>
+    <div class="container">
+        <!-- ============================================
+             HEADER SECTION
+             ============================================ -->
+        <section class="header-section">
+            <div class="header-content">
+                <h1>Bellman-Ford Algorithm Visualizer</h1>
+                <p class="header-subtitle">Shortest Path Algorithm with Negative Weight Support</p>
+                <p class="header-intro">
+                    The Bellman-Ford algorithm is a fundamental graph algorithm that computes shortest paths from a single source vertex 
+                    to all other vertices. Unlike Dijkstra's algorithm, it handles graphs with negative edge weights and can detect 
+                    negative-weight cycles, making it essential for applications like currency arbitrage detection and routing protocols.
+                </p>
+                <button class="header-cta" onclick="document.getElementById('visualization').scrollIntoView({ behavior: 'smooth' })">
+                    Start Visualization
+                </button>
+            </div>
+            <div class="graph-preview">
+                <svg class="svg-graph" viewBox="0 0 400 300">
+                    <!-- Define markers for arrows -->
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <polygon points="0 0, 10 3, 0 6" fill="#00d4ff" />
+                        </marker>
+                    </defs>
+                    <!-- Edges -->
+                    <line x1="80" y1="150" x2="180" y2="100" stroke="#2a3a52" stroke-width="2" marker-end="url(#arrowhead)" />
+                    <line x1="80" y1="150" x2="180" y2="200" stroke="#2a3a52" stroke-width="2" marker-end="url(#arrowhead)" />
+                    <line x1="180" y1="100" x2="300" y2="150" stroke="#2a3a52" stroke-width="2" marker-end="url(#arrowhead)" />
+                    <line x1="180" y1="200" x2="300" y2="150" stroke="#2a3a52" stroke-width="2" marker-end="url(#arrowhead)" />
+                    <line x1="300" y1="150" x2="350" y2="250" stroke="#2a3a52" stroke-width="2" marker-end="url(#arrowhead)" />
+
+                    <!-- Nodes -->
+                    <circle cx="80" cy="150" r="25" fill="#1a2332" stroke="#00d4ff" stroke-width="2" />
+                    <text x="80" y="155" text-anchor="middle" font-size="14" font-weight="bold" fill="#00d4ff">A</text>
+
+                    <circle cx="180" cy="100" r="25" fill="#1a2332" stroke="#00d4ff" stroke-width="2" />
+                    <text x="180" y="105" text-anchor="middle" font-size="14" font-weight="bold" fill="#00d4ff">B</text>
+
+                    <circle cx="180" cy="200" r="25" fill="#1a2332" stroke="#00d4ff" stroke-width="2" />
+                    <text x="180" y="205" text-anchor="middle" font-size="14" font-weight="bold" fill="#00d4ff">C</text>
+
+                    <circle cx="300" cy="150" r="25" fill="#1a2332" stroke="#00d4ff" stroke-width="2" />
+                    <text x="300" y="155" text-anchor="middle" font-size="14" font-weight="bold" fill="#00d4ff">D</text>
+
+                    <circle cx="350" cy="250" r="25" fill="#1a2332" stroke="#00d4ff" stroke-width="2" />
+                    <text x="350" y="255" text-anchor="middle" font-size="14" font-weight="bold" fill="#00d4ff">E</text>
+                </svg>
+            </div>
+        </section>
+
+        <!-- ============================================
+             THEORY SECTION
+             ============================================ -->
+        <section>
+            <h2>What is <span class="accent-color">Bellman-Ford</span>?</h2>
+            
+            <h3>Overview</h3>
+            <p>
+                The Bellman-Ford algorithm is a single-source shortest path algorithm that computes the shortest distance from 
+                a source vertex to all other vertices in a weighted directed graph. It is particularly valuable because it handles 
+                graphs with negative edge weights—something that Dijkstra's algorithm cannot do.
+            </p>
+
+            <h3>Key Characteristics</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <h3>Single-Source Shortest Path</h3>
+                    <p>Computes shortest paths from one designated source vertex to all other reachable vertices.</p>
+                </div>
+                <div class="card">
+                    <h3>Handles Negative Weights</h3>
+                    <p>Unlike Dijkstra's algorithm, works correctly with edges that have negative weights.</p>
+                </div>
+                <div class="card">
+                    <h3>Detects Negative Cycles</h3>
+                    <p>Can identify if a graph contains negative-weight cycles, which make shortest paths undefined.</p>
+                </div>
+                <div class="card">
+                    <h3>Edge Relaxation</h3>
+                    <p>Based on the concept of relaxing edges—progressively improving distance estimates.</p>
+                </div>
+            </div>
+            
+            <span>  </span>
+            <h3>How It Works</h3>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div>
+                        <h3>Initialize Distances</h3>
+                        <p>Set the source distance to 0 and all other distances to infinity. This represents the initial state where we know the distance to the source, but nothing about other vertices.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div>
+                        <h3>Relax All Edges V-1 Times</h3>
+                        <p>For V-1 iterations (where V is the number of vertices), examine every edge in the graph. For each edge (u, v) with weight w, if distance[u] + w is less than distance[v], update distance[v].</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div>
+                        <h3>Check for Negative Cycles</h3>
+                        <p>Attempt to relax all edges one more time. If any edge can still be relaxed, a negative-weight cycle exists, indicating no valid shortest paths.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Pseudocode</h3>
+            <div class="code-block">
+                <pre><code>function BellmanFord(Graph, source)
+    // Initialize distances
+    for each vertex v in Graph:
+        distance[v] = INFINITY
+    distance[source] = 0
+
+    // Relax edges |V| - 1 times
+    for i = 1 to |V| - 1:
+        for each edge (u, v) with weight w in Graph:
+            if distance[u] + w < distance[v]:
+                distance[v] = distance[u] + w
+
+    // Check for negative cycles
+    for each edge (u, v) with weight w in Graph:
+        if distance[u] + w < distance[v]:
+            return "Negative cycle detected"
+
+    return distance</code></pre>
+            </div>
+        </section>
+
+        <!-- ============================================
+             VISUALIZATION SECTION
+             ============================================ -->
+        <section id="visualization">
+            <h2>Interactive <span class="accent-color">Visualization</span></h2>
+            <p>Step through the algorithm below. Watch as edges are relaxed and distances are updated in real-time.</p>
+
+            <div class="visualization-layout">
+                <div class="graph-container">
+                    <svg id="algorithm-graph" class="svg-graph" viewBox="0 0 500 450">
+                        <defs>
+                            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0, 10 3, 0 6" fill="#00d4ff" />
+                            </marker>
+                            <marker id="arrow-relax" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0, 10 3, 0 6" fill="#fbbf24" />
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+
+                <div class="control-panel">
+                    <h3>Algorithm Control</h3>
+                    <div class="button-group">
+                        <button class="btn btn-primary" id="btn-start" onclick="startAlgorithm()">Start Algorithm</button>
+                        <button class="btn" id="btn-next" onclick="nextStep()" disabled>Next Step</button>
+                        <button class="btn" id="btn-reset" onclick="resetAlgorithm()">Reset</button>
+                    </div>
+
+                    <div class="status-message" id="status-msg"></div>
+
+                    <div class="info-display">
+                        <div class="info-row">
+                            <span class="info-label">Current Iteration:</span>
+                            <span class="info-value" id="iteration-count">0 / 4</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Current Step:</span>
+                            <span class="info-value" id="step-type">Initializing...</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Status:</span>
+                            <span class="info-value" id="status-label">Ready</span>
+                        </div>
+                    </div>
+
+                    <div class="distance-table">
+                        <h4>Shortest Distances from A</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Node</th>
+                                    <th>Distance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="distance-tbody">
+                                <tr>
+                                    <td>A</td>
+                                    <td class="distance-value" id="dist-A">0</td>
+                                </tr>
+                                <tr>
+                                    <td>B</td>
+                                    <td class="distance-value" id="dist-B">∞</td>
+                                </tr>
+                                <tr>
+                                    <td>C</td>
+                                    <td class="distance-value" id="dist-C">∞</td>
+                                </tr>
+                                <tr>
+                                    <td>D</td>
+                                    <td class="distance-value" id="dist-D">∞</td>
+                                </tr>
+                                <tr>
+                                    <td>E</td>
+                                    <td class="distance-value" id="dist-E">∞</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+             TIME COMPLEXITY SECTION
+             ============================================ -->
+        <section>
+            <h2>Time <span class="accent-color">Complexity</span></h2>
+            
+            <div class="three-column-grid">
+                <div class="card">
+                    <h3>Overall Complexity</h3>
+                    <p style="font-size: 1.5rem; color: var(--accent); font-weight: bold; margin: 20px 0;">O(V × E)</p>
+                    <p>Where <strong>V</strong> is the number of vertices and <strong>E</strong> is the number of edges.</p>
+                </div>
+
+                <div class="card">
+                    <h3>Detailed Breakdown</h3>
+                    <p><strong>Initialization:</strong> O(V)</p>
+                    <p style="margin-bottom: 1rem;"><strong>Main Loop:</strong> O(V × E)</p>
+                    <p><strong>Cycle Detection:</strong> O(E)</p>
+                </div>
+
+                <div class="card">
+                    <h3>Space Complexity</h3>
+                    <p style="font-size: 1.5rem; color: var(--accent); font-weight: bold; margin: 20px 0;">O(V)</p>
+                    <p>Only needs to store distance values for each vertex.</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem;">Comparison to Dijkstra</h3>
+            <p>
+                Dijkstra's algorithm achieves O((V + E) log V) time complexity using a priority queue, making it faster for graphs 
+                with only non-negative weights. However, this speed advantage disappears when negative weights are present, making 
+                Bellman-Ford the better choice for such cases despite its higher time complexity.
+            </p>
+        </section>
+
+        <!-- ============================================
+             ADVANTAGES & DISADVANTAGES
+             ============================================ -->
+        <section>
+            <h2>Advantages & <span class="accent-color">Disadvantages</span></h2>
+            
+            <div class="two-column-grid">
+                <div class="card">
+                    <h3>Advantages</h3>
+                    <ul style="color: var(--text-secondary); padding-left: 20px;">
+                        <li style="margin-bottom: 0.75rem;">Handles negative edge weights correctly</li>
+                        <li style="margin-bottom: 0.75rem;">Detects negative-weight cycles</li>
+                        <li style="margin-bottom: 0.75rem;">Conceptually simple to understand</li>
+                        <li style="margin-bottom: 0.75rem;">Works on any graph structure</li>
+                        <li style="margin-bottom: 0.75rem;">Guaranteed to find optimal paths</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Disadvantages</h3>
+                    <ul style="color: var(--text-secondary); padding-left: 20px;">
+                        <li style="margin-bottom: 0.75rem;">Slower than Dijkstra for non-negative weights</li>
+                        <li style="margin-bottom: 0.75rem;">O(V×E) complexity is expensive for large graphs</li>
+                        <li style="margin-bottom: 0.75rem;">Not suitable for real-time applications</li>
+                        <li style="margin-bottom: 0.75rem;">Requires full edge relaxation passes</li>
+                        <li style="margin-bottom: 0.75rem;">Poor performance on dense graphs</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+             COMPARISON TABLE
+             ============================================ -->
+        <section>
+            <h2>Bellman-Ford vs <span class="accent-color">Dijkstra</span></h2>
+            
+            <div class="card">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Bellman-Ford</th>
+                            <th>Dijkstra</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Negative Weights</strong></td>
+                            <td><span class="yes">Supported</span></td>
+                            <td><span class="no">Not Supported</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Negative Cycle Detection</strong></td>
+                            <td><span class="yes">Yes</span></td>
+                            <td><span class="no">No</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Time Complexity</strong></td>
+                            <td>O(V × E)</td>
+                            <td>O((V + E) log V)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Efficiency</strong></td>
+                            <td><span class="no">Slower</span></td>
+                            <td><span class="yes">Faster</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best Use Case</strong></td>
+                            <td>Any graph</td>
+                            <td>Non-negative weights only</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ============================================
+             CONCLUSION
+             ============================================ -->
+        <section>
+            <h2>Why <span class="accent-color">Bellman-Ford</span> Matters</h2>
+            
+            <div class="card">
+                <p>
+                    The Bellman-Ford algorithm remains a cornerstone of computer science and graph theory. While Dijkstra's algorithm 
+                    is faster for graphs with non-negative weights, Bellman-Ford's ability to handle negative weights and detect 
+                    negative cycles makes it indispensable for many real-world applications. From network routing protocols like RIP 
+                    to financial systems detecting arbitrage opportunities, this algorithm demonstrates fundamental principles of 
+                    dynamic programming and iterative refinement.
+                </p>
+                <p>
+                    Understanding Bellman-Ford provides valuable insight into how algorithms handle constraints, validate solutions, 
+                    and solve optimization problems. Its relatively simple implementation combined with broad applicability makes it 
+                    an essential algorithm for every computer scientist to master.
+                </p>
+            </div>
+        </section>
+    </div>
+    <script src="script.js"></script>
+ </body>
+</html>
